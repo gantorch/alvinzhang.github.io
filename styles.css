@@ -1,0 +1,92 @@
+:root {
+  --bg: #0d0015;
+  --text: #f7f4ff;
+  --muted: #cfc7ff;
+  --maxw: 1100px;
+}
+
+/* Basic reset */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  height: 100%;
+}
+
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--text);
+  font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto,
+    Helvetica, Arial, Apple Color Emoji, Segoe UI Emoji, Segoe UI Symbol;
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+}
+
+.site {
+  min-height: 100svh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+}
+
+.site-header {
+  width: 100%;
+  max-width: var(--maxw);
+  display: grid;
+  place-items: center;
+  text-align: center;
+}
+
+.site-header h1 {
+  margin: 0;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  /* Scales from mobile to desktop nicely */
+  font-size: clamp(2.25rem, 6vw, 5rem);
+  color: var(--text);
+  text-shadow: 0 0 20px rgba(255, 248, 200, 0.06);
+}
+
+/* Cursor Canvas */
+#cursor-canvas {
+  position: fixed;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 10;
+  pointer-events: none;
+  /* Helps the glow blend nicely on some GPUs */
+  will-change: transform;
+}
+
+/* Hide native cursor only when we render a custom one.
+   We toggle this in JS for reduced motion or touch. */
+body.cursor-hidden {
+  cursor: none;
+}
+
+/* Respect users who prefer reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  #cursor-canvas {
+    display: none;
+  }
+  body {
+    cursor: auto !important;
+  }
+}
+
+/* High-contrast fallback if canvas unsupported */
+noscript,
+.no-canvas {
+  display: none;
+}
+
+
