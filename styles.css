@@ -126,7 +126,7 @@ a {
   text-underline-offset: 0.15em;
   text-decoration-thickness: auto;
   transition: color 160ms ease-out, transform 160ms ease-out;
-  display: inline-block; /* enable transform */
+  display: inline-block;
 }
 a:hover,
 a:focus-visible {
