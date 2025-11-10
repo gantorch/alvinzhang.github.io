@@ -3,9 +3,14 @@
   const ctx = canvas && canvas.getContext ? canvas.getContext('2d') : null;
   if (!canvas || !ctx) return;
 
-  // Config (from provided TS)
+  const noCursor = window.matchMedia('(hover: none), (pointer: coarse)').matches;
+  if (noCursor) {
+    canvas.style.display = 'none';
+    return;
+  }
+
   const sizeScale = 1.2;
-  const spawnRate = 2; // particles/sec
+  const spawnRate = 2;
   const lifetimeMs = 2800;
   const speedScale = 0.2;
   const maxParticles = 400;
@@ -18,9 +23,8 @@
   const follow = followStrength;
   const maxSpeed = 1 + 6 * speedScale;
   const vScale = speedScale;
-  const dead = 900; // ~30px dead-zone squared
+  const dead = 900;
 
-  // Debounced resize
   let pendingResize = false;
   let resizeRafId = 0;
   const performResize = () => {
@@ -39,7 +43,6 @@
   performResize();
   window.addEventListener('resize', onResize, { passive: true });
 
-  // Mouse and visibility state
   let mouse = { x: canvas.width / 2, y: canvas.height / 2, out: true };
   let isPageVisible = !document.hidden;
 
@@ -72,7 +75,6 @@
   window.addEventListener('mouseout', handleMouseOut, { passive: true });
   document.addEventListener('visibilitychange', handleVisibilityChange);
 
-  // Particle shape
   /** @type {Array<{x:number,y:number,xv:number,yv:number,s:number,life:number,lifetime:number,phase:number,flickerSpeed:number}>} */
   let particles = [];
   let spawnAccumulator = 0;
@@ -106,9 +108,8 @@
     });
   };
 
-  // Shifted toward a more yellow palette
-  const startColor = { r: 255, g: 222, b: 120 }; // warm golden
-  const endColor = { r: 255, g: 248, b: 180 };   // pale yellow
+  const startColor = { r: 255, g: 222, b: 120 };
+  const endColor = { r: 255, g: 248, b: 180 };
 
   const draw = () => {
     if (particles.length === 0) return;
@@ -144,11 +145,9 @@
     }
 
     for (const p of particles) {
-      // wander
       p.xv += (Math.random() - 0.5) * wander;
       p.yv += (Math.random() - 0.5) * wander;
 
-      // soft follow / repulsion
       if (!mouse.out) {
         const dx = mouse.x - p.x;
         const dy = mouse.y - p.y;
@@ -164,11 +163,9 @@
         }
       }
 
-      // drag
       p.xv *= 0.985;
       p.yv *= 0.985;
 
-      // clamp speed
       const speed = Math.hypot(p.xv, p.yv);
       if (speed > maxSpeed) {
         const s = maxSpeed / speed;
@@ -176,7 +173,6 @@
         p.yv *= s;
       }
 
-      // soft bounds
       if (p.x < 0 || p.x > canvas.width) p.xv *= -0.8;
       if (p.y < 0 || p.y > canvas.height) p.yv *= -0.8;
 
@@ -187,8 +183,7 @@
       p.phase += p.flickerSpeed * (dt / 1000);
     }
 
-    // swap-pop expired
-    for (let i = particles.length - 1; i >= 0; i--) {
+      for (let i = particles.length - 1; i >= 0; i--) {
       if (particles[i].life >= particles[i].lifetime) {
         const last = particles[particles.length - 1];
         if (last) particles[i] = last;
@@ -218,7 +213,6 @@
   }
 })();
 
-// Email copy with floating tooltip that follows the cursor
 (() => {
   const emailEl = document.querySelector('.copy-email');
   if (!emailEl) return;
@@ -250,7 +244,6 @@
     try {
       await navigator.clipboard.writeText(email);
     } catch {
-      // ignore clipboard errors silently
     }
     visible = true;
     positionTooltip();

@@ -181,4 +181,11 @@ noscript,
   display: none;
 }
 
+/* Hide cursor canvas on non-cursor (touch/coarse) devices */
+@media (hover: none), (pointer: coarse) {
+  #cursor-canvas {
+    display: none !important;
+  }
+}
+
 
