@@ -218,4 +218,48 @@
   }
 })();
 
+// Email copy with floating tooltip that follows the cursor
+(() => {
+  const emailEl = document.querySelector('.copy-email');
+  if (!emailEl) return;
+  const email = (emailEl.getAttribute('data-email') || emailEl.textContent || '').trim();
+
+  const tooltip = document.createElement('div');
+  tooltip.className = 'copy-tooltip';
+  tooltip.textContent = 'copied';
+  document.body.appendChild(tooltip);
+
+  let mouseX = 0;
+  let mouseY = 0;
+  let visible = false;
+  let fadeTimer = 0;
+
+  function positionTooltip() {
+    if (!visible) return;
+    tooltip.style.transform = `translate(${mouseX + 14}px, ${mouseY + 18}px)`;
+  }
+
+  window.addEventListener('mousemove', (e) => {
+    mouseX = e.clientX;
+    mouseY = e.clientY;
+    positionTooltip();
+  }, { passive: true });
+
+  emailEl.addEventListener('click', async (e) => {
+    e.preventDefault();
+    try {
+      await navigator.clipboard.writeText(email);
+    } catch {
+      // ignore clipboard errors silently
+    }
+    visible = true;
+    positionTooltip();
+    tooltip.style.opacity = '1';
+    clearTimeout(fadeTimer);
+    fadeTimer = setTimeout(() => {
+      tooltip.style.opacity = '0';
+      visible = false;
+    }, 3000);
+  });
+})();
 
