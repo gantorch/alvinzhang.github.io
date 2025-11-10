@@ -32,17 +32,23 @@ body {
 .site {
   min-height: 100svh;
   display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 24px;
+  align-items: flex-start;
+  justify-content: flex-start;
+  /* push content toward the top-left quadrant */
+  padding-top: clamp(48px, 12vh, 160px);
+  padding-left: clamp(24px, 10vw, 160px);
+  padding-right: 24px;
+  padding-bottom: 24px;
+  position: relative;
+  z-index: 1;
 }
 
 .site-header {
   width: 100%;
   max-width: var(--maxw);
   display: grid;
-  place-items: center;
-  text-align: center;
+  place-items: start;
+  text-align: left;
 }
 
 .site-header h1 {
@@ -50,9 +56,17 @@ body {
   font-weight: 800;
   letter-spacing: -0.02em;
   /* Scales from mobile to desktop nicely */
-  font-size: clamp(2.25rem, 6vw, 5rem);
+  font-size: clamp(2rem, 4.6vw, 3.8rem);
   color: var(--text);
   text-shadow: 0 0 20px rgba(255, 248, 200, 0.06);
+}
+
+.site-subtitle {
+  margin-top: 12px;
+  max-width: 60ch;
+  color: var(--muted);
+  font-size: clamp(1rem, 2.4vw, 1.125rem);
+  line-height: 1.65;
 }
 
 /* Cursor Canvas */
