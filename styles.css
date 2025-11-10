@@ -80,6 +80,7 @@ body {
   color: #a9a2c8; /* muted gray-purple to match theme */
   transition: color 160ms ease-out, transform 160ms ease-out;
   display: inline-flex;
+  text-decoration: none; /* prevent underline on icon links */
 }
 .social-icon:hover {
   color: #ffe27a; /* warm yellow on hover */
@@ -99,6 +100,20 @@ body {
   display: inline-block;
 }
 
+/* Make all links use the same hover treatment as icons */
+a {
+  color: var(--muted);
+  text-decoration: underline;
+  text-underline-offset: 0.15em;
+  text-decoration-thickness: auto;
+  transition: color 160ms ease-out, transform 160ms ease-out;
+  display: inline-block; /* enable transform */
+}
+a:hover,
+a:focus-visible {
+  color: #ffe27a;
+  transform: translateY(-1px);
+}
 /* Cursor Canvas */
 #cursor-canvas {
   position: fixed;
