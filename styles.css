@@ -69,6 +69,36 @@ body {
   line-height: 1.65;
 }
 
+/* Social icons row */
+.socials {
+  display: inline-flex;
+  align-items: center;
+  gap: 18px;
+  margin-top: 16px;
+}
+.social-icon {
+  color: #a9a2c8; /* muted gray-purple to match theme */
+  transition: color 160ms ease-out, transform 160ms ease-out;
+  display: inline-flex;
+}
+.social-icon:hover {
+  color: #ffe27a; /* warm yellow on hover */
+  transform: translateY(-1px);
+  cursor: pointer;
+}
+
+.x-icon {
+  font-size: 30px; /* slightly larger to visually match SVG icons */
+  font-weight: 700;
+  line-height: 1;
+  vertical-align: middle;
+  /* include symbol-capable fallbacks to ensure 𝕏 renders */
+  font-family: Inter, ui-sans-serif, system-ui, -apple-system, 'Segoe UI',
+    'Segoe UI Symbol', 'Noto Sans Symbols', 'Noto Sans Math',
+    Helvetica, Arial, sans-serif;
+  display: inline-block;
+}
+
 /* Cursor Canvas */
 #cursor-canvas {
   position: fixed;
