@@ -34,7 +34,6 @@ body {
   display: flex;
   align-items: flex-start;
   justify-content: flex-start;
-  /* push content toward the top-left quadrant */
   padding-top: clamp(48px, 12vh, 160px);
   padding-left: clamp(24px, 10vw, 160px);
   padding-right: 24px;
@@ -55,7 +54,6 @@ body {
   margin: 0;
   font-weight: 800;
   letter-spacing: -0.02em;
-  /* Scales from mobile to desktop nicely */
   font-size: clamp(1.8rem, 4vw, 3.2rem);
   color: var(--text);
   text-shadow: 0 0 20px rgba(255, 248, 200, 0.06);
@@ -63,7 +61,7 @@ body {
 
 .header-row {
   display: flex;
-  align-items: flex-end; /* bottom-align with the header */
+  align-items: flex-end;
   gap: 12px;
   flex-wrap: wrap;
 }
@@ -80,9 +78,8 @@ body {
   height: 20px;
 }
 
-/* add a bit more space before the location item in the socials row */
 .location-inline {
-  margin-left: 28px; /* more than the icon gap */
+  margin-left: 28px;
 }
 
 .site-subtitle {
@@ -101,30 +98,28 @@ body {
   margin-top: 16px;
 }
 .social-icon {
-  color: #a9a2c8; /* muted gray-purple to match theme */
+  color: #a9a2c8; 
   transition: color 160ms ease-out, transform 160ms ease-out;
   display: inline-flex;
-  text-decoration: none; /* prevent underline on icon links */
+  text-decoration: none;
 }
 .social-icon:hover {
-  color: #ffe27a; /* warm yellow on hover */
+  color: #ffe27a;
   transform: translateY(-1px);
   cursor: pointer;
 }
 
 .x-icon {
-  font-size: 30px; /* slightly larger to visually match SVG icons */
+  font-size: 30px;
   font-weight: 700;
   line-height: 1;
   vertical-align: middle;
-  /* include symbol-capable fallbacks to ensure 𝕏 renders */
   font-family: Inter, ui-sans-serif, system-ui, -apple-system, 'Segoe UI',
     'Segoe UI Symbol', 'Noto Sans Symbols', 'Noto Sans Math',
     Helvetica, Arial, sans-serif;
   display: inline-block;
 }
 
-/* Make all links use the same hover treatment as icons */
 a {
   color: var(--muted);
   text-decoration: underline;
@@ -139,7 +134,6 @@ a:focus-visible {
   transform: translateY(-1px);
 }
 
-/* Floating "copied" tooltip that follows cursor */
 .copy-tooltip {
   position: fixed;
   top: 0;
@@ -153,12 +147,12 @@ a:focus-visible {
   box-shadow: 0 6px 18px rgba(0, 0, 0, 0.35);
   font-size: 13px;
   line-height: 1;
-  z-index: 20; /* above cursor canvas */
+  z-index: 20;
   pointer-events: none;
   opacity: 0;
   transition: opacity 200ms ease;
 }
-/* Cursor Canvas */
+
 #cursor-canvas {
   position: fixed;
   inset: 0;
@@ -166,17 +160,13 @@ a:focus-visible {
   height: 100%;
   z-index: 10;
   pointer-events: none;
-  /* Helps the glow blend nicely on some GPUs */
   will-change: transform;
 }
 
-/* Hide native cursor only when we render a custom one.
-   We toggle this in JS for reduced motion or touch. */
 body.cursor-hidden {
   cursor: none;
 }
 
-/* Respect users who prefer reduced motion */
 @media (prefers-reduced-motion: reduce) {
   #cursor-canvas {
     display: none;
@@ -186,7 +176,6 @@ body.cursor-hidden {
   }
 }
 
-/* High-contrast fallback if canvas unsupported */
 noscript,
 .no-canvas {
   display: none;
