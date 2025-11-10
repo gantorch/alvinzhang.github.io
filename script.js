@@ -1,178 +1,220 @@
 (() => {
   const canvas = document.getElementById('cursor-canvas');
-  const ctx = canvas && canvas.getContext ? canvas.getContext('2d', { alpha: true }) : null;
+  const ctx = canvas && canvas.getContext ? canvas.getContext('2d') : null;
+  if (!canvas || !ctx) return;
 
-  const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-  const isTouchCapable = matchMedia('(hover: none), (pointer: coarse)').matches;
+  // Config (from provided TS)
+  const sizeScale = 1.2;
+  const spawnRate = 2; // particles/sec
+  const lifetimeMs = 2800;
+  const speedScale = 0.2;
+  const maxParticles = 400;
+  const wanderStrength = 0.195;
+  const followStrength = 0.08;
+  const emissionRadius = 28;
 
-  // If we cannot draw or motion is reduced, bail gracefully
-  if (!canvas || !ctx || prefersReducedMotion) {
-    document.body.classList.remove('cursor-hidden');
-    if (canvas) canvas.style.display = 'none';
-    return;
-  }
+  const TWO_PI = Math.PI * 2;
+  const wander = wanderStrength;
+  const follow = followStrength;
+  const maxSpeed = 1 + 6 * speedScale;
+  const vScale = speedScale;
+  const dead = 900; // ~30px dead-zone squared
 
-  // Enable custom cursor
-  document.body.classList.add('cursor-hidden');
-
-  // Resize handling
-  function resize() {
-    const dpr = Math.max(1, Math.min(2, window.devicePixelRatio || 1));
-    const w = Math.floor(window.innerWidth);
-    const h = Math.floor(window.innerHeight);
-    canvas.width = Math.floor(w * dpr);
-    canvas.height = Math.floor(h * dpr);
-    canvas.style.width = w + 'px';
-    canvas.style.height = h + 'px';
-    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-  }
-  window.addEventListener('resize', resize, { passive: true });
-  resize();
-
-  // Colors inspired by warm firefly yellows
-  const palette = ['#fff176', '#ffecb3', '#ffe082', '#ffd54f', '#fdd835', '#fff59d'];
-
-  // Particle system
-  const NUM_PARTICLES = 26;
-  const particles = [];
-  const rng = (min, max) => Math.random() * (max - min) + min;
-
-  const mouse = {
-    x: window.innerWidth / 2,
-    y: window.innerHeight / 2,
-    vx: 0,
-    vy: 0,
-    lastX: null,
-    lastY: null,
-    lastMoveAt: performance.now(),
-    isDown: false,
+  // Debounced resize
+  let pendingResize = false;
+  let resizeRafId = 0;
+  const performResize = () => {
+    const width = window.innerWidth;
+    const height = window.innerHeight;
+    canvas.width = width;
+    canvas.height = height;
+    pendingResize = false;
   };
+  const onResize = () => {
+    if (!pendingResize) {
+      pendingResize = true;
+      resizeRafId = window.requestAnimationFrame(performResize);
+    }
+  };
+  performResize();
+  window.addEventListener('resize', onResize, { passive: true });
 
-  // Initialize particles
-  for (let i = 0; i < NUM_PARTICLES; i++) {
-    particles.push({
-      x: mouse.x + rng(-20, 20),
-      y: mouse.y + rng(-20, 20),
-      size: rng(1.5, 3.8),
-      color: palette[(Math.random() * palette.length) | 0],
-      orbitOffset: rng(0, Math.PI * 2),
-      followStrength: rng(0.08, 0.22),
-      jitter: rng(0.3, 1.0),
-      opacity: rng(0.5, 0.9),
-    });
-  }
+  // Mouse and visibility state
+  let mouse = { x: canvas.width / 2, y: canvas.height / 2, out: true };
+  let isPageVisible = !document.hidden;
 
-  // Movement & input
-  function handlePointerMove(e) {
+  const handleMouseMove = (e) => {
     const x = e.clientX;
     const y = e.clientY;
-    const now = performance.now();
-    if (mouse.lastX != null) {
-      mouse.vx = x - mouse.lastX;
-      mouse.vy = y - mouse.lastY;
+    mouse = { x, y, out: false };
+    if (!rafId && isPageVisible) {
+      lastTime = performance.now();
+      rafId = window.requestAnimationFrame(loop);
     }
-    mouse.x = x;
-    mouse.y = y;
-    mouse.lastX = x;
-    mouse.lastY = y;
-    mouse.lastMoveAt = now;
-  }
-  function handlePointerDown() {
-    mouse.isDown = true;
-  }
-  function handlePointerUp() {
-    mouse.isDown = false;
-  }
+  };
+  const handleMouseOut = () => {
+    mouse.out = true;
+  };
+  const handleVisibilityChange = () => {
+    isPageVisible = !document.hidden;
+    if (isPageVisible) {
+      if (!rafId) {
+        lastTime = performance.now();
+        rafId = window.requestAnimationFrame(loop);
+      }
+    } else if (rafId) {
+      window.cancelAnimationFrame(rafId);
+      rafId = 0;
+    }
+  };
 
-  window.addEventListener('pointermove', handlePointerMove, { passive: true });
-  window.addEventListener('pointerdown', handlePointerDown, { passive: true });
-  window.addEventListener('pointerup', handlePointerUp, { passive: true });
+  window.addEventListener('mousemove', handleMouseMove, { passive: true });
+  window.addEventListener('mouseout', handleMouseOut, { passive: true });
+  document.addEventListener('visibilitychange', handleVisibilityChange);
 
-  // Touch devices: let the native cursor be shown; still render subtle glow near touch
-  if (isTouchCapable) {
-    document.body.classList.remove('cursor-hidden');
-  }
+  // Particle shape
+  /** @type {Array<{x:number,y:number,xv:number,yv:number,s:number,life:number,lifetime:number,phase:number,flickerSpeed:number}>} */
+  let particles = [];
+  let spawnAccumulator = 0;
+  let type = 0;
+  let lastTime = 0;
+  let rafId = 0;
 
-  // Animation loop
-  let lastTime = performance.now();
-  const IDLE_THRESHOLD_MS = 160;
+  const newParticle = () => {
+    type = type ? 0 : 1;
+    const angle = Math.random() * TWO_PI;
+    const radius = Math.sqrt(Math.random()) * emissionRadius;
+    const sx = mouse.x + Math.cos(angle) * radius;
+    const sy = mouse.y + Math.sin(angle) * radius;
 
-  function draw() {
-    const now = performance.now();
-    const dt = Math.min(64, now - lastTime);
-    lastTime = now;
+    const outward = 0.6 + Math.random() * 0.6;
+    const tangential = (Math.random() - 0.5) * 0.6;
+    const vx = (Math.cos(angle) * outward - Math.sin(angle) * tangential) * vScale;
+    const vy = (Math.sin(angle) * outward + Math.cos(angle) * tangential) * vScale;
+    const base = type ? 1.3 : 1.6;
 
+    particles.push({
+      x: sx,
+      y: sy,
+      xv: vx,
+      yv: vy,
+      s: (type ? base + Math.random() : base) * sizeScale * (1 + Math.random()),
+      life: 0,
+      lifetime: Math.max(300, lifetimeMs),
+      phase: Math.random() * TWO_PI,
+      flickerSpeed: 1 + Math.random() * 2
+    });
+  };
+
+  const startColor = { r: 0xf3, g: 0xb4, b: 0x8e };
+  const endColor = { r: 0xff, g: 0xf2, b: 0xe6 };
+
+  const draw = () => {
+    if (particles.length === 0) return;
     ctx.clearRect(0, 0, canvas.width, canvas.height);
-    ctx.globalCompositeOperation = 'lighter';
-
-    const idle = now - mouse.lastMoveAt > IDLE_THRESHOLD_MS;
-
-    // Core cursor glow
-    const coreSize = mouse.isDown ? 7 : 5;
-    const coreOpacity = mouse.isDown ? 0.8 : 0.65;
-    ctx.save();
-    ctx.globalAlpha = coreOpacity;
-    ctx.shadowColor = 'rgba(255, 240, 170, 0.85)';
-    ctx.shadowBlur = mouse.isDown ? 30 : 18;
-    ctx.fillStyle = '#fff8c4';
-    ctx.beginPath();
-    ctx.arc(mouse.x, mouse.y, coreSize, 0, Math.PI * 2);
-    ctx.fill();
-    ctx.restore();
-
-    // Particle behavior
-    if (idle) {
-      // Encircle when still: orbit around the cursor
-      const orbitRadius = mouse.isDown ? 26 : 20;
-      const orbitSpeed = (mouse.isDown ? 0.0022 : 0.0016) * dt; // radians per ms scaled by dt
-      for (let i = 0; i < particles.length; i++) {
-        const p = particles[i];
-        p.orbitOffset += orbitSpeed + 0.0005 * Math.sin(now * 0.002 + i); // subtle organic wobble
-        const targetX = mouse.x + Math.cos(p.orbitOffset + (i * (Math.PI * 2)) / particles.length) * orbitRadius;
-        const targetY = mouse.y + Math.sin(p.orbitOffset + (i * (Math.PI * 2)) / particles.length) * orbitRadius;
-        p.x += (targetX - p.x) * (0.12 + p.followStrength * 0.5);
-        p.y += (targetY - p.y) * (0.12 + p.followStrength * 0.5);
-      }
-    } else {
-      // Follow when moving: create a trailing cluster that eases toward the pointer
-      // Lead particle follows the cursor; each subsequent particle trails the previous one
-      for (let i = 0; i < particles.length; i++) {
-        const p = particles[i];
-        const leaderX = i === 0 ? mouse.x : particles[i - 1].x;
-        const leaderY = i === 0 ? mouse.y : particles[i - 1].y;
-        const strength = i === 0 ? 0.25 : p.followStrength;
-        // subtle velocity-based offset for "motion tail"
-        const lag = Math.min(14, i * 0.9);
-        const offsetX = mouse.vx * (lag * 0.06);
-        const offsetY = mouse.vy * (lag * 0.06);
-        const targetX = leaderX - offsetX;
-        const targetY = leaderY - offsetY;
-        p.x += (targetX - p.x) * strength;
-        p.y += (targetY - p.y) * strength;
-      }
-    }
-
-    // Render particles
-    for (let i = 0; i < particles.length; i++) {
-      const p = particles[i];
-      const flicker = 0.85 + Math.sin(now * 0.01 + i) * 0.08;
-      const size = Math.max(1, p.size * flicker + (mouse.isDown ? 0.6 : 0));
-
-      ctx.save();
-      ctx.globalAlpha = Math.min(1, p.opacity * (mouse.isDown ? 1 : 0.9));
-      ctx.fillStyle = p.color;
-      ctx.shadowColor = 'rgba(255, 240, 170, 0.7)';
-      ctx.shadowBlur = 16;
+    for (const p of particles) {
+      const t = Math.max(0, Math.min(1, p.life / p.lifetime));
+      const ct = Math.pow(t, 0.6);
+      const r = Math.round(startColor.r + (endColor.r - startColor.r) * ct);
+      const g = Math.round(startColor.g + (endColor.g - startColor.g) * ct);
+      const b = Math.round(startColor.b + (endColor.b - startColor.b) * ct);
+      const flicker = 0.6 + 0.4 * Math.sin(p.phase);
+      ctx.globalAlpha = flicker;
+      ctx.fillStyle = `rgb(${r},${g},${b})`;
       ctx.beginPath();
-      ctx.arc(p.x + rng(-p.jitter, p.jitter), p.y + rng(-p.jitter, p.jitter), size, 0, Math.PI * 2);
+      ctx.arc(p.x, p.y, p.s, 0, TWO_PI);
       ctx.fill();
-      ctx.restore();
+    }
+    ctx.globalAlpha = 1;
+  };
+
+  const calculate = (time) => {
+    const dt = Math.min(100, time - lastTime);
+    lastTime = time;
+
+    if (!mouse.out) {
+      spawnAccumulator += (dt / 1000) * Math.max(0, spawnRate);
+      for (; spawnAccumulator >= 1; spawnAccumulator -= 1) newParticle();
     }
 
-    requestAnimationFrame(draw);
-  }
+    const particleOverflow = particles.length - maxParticles;
+    if (particleOverflow > 0) {
+      particles = particles.slice(particleOverflow);
+    }
 
-  requestAnimationFrame(draw);
+    for (const p of particles) {
+      // wander
+      p.xv += (Math.random() - 0.5) * wander;
+      p.yv += (Math.random() - 0.5) * wander;
+
+      // soft follow / repulsion
+      if (!mouse.out) {
+        const dx = mouse.x - p.x;
+        const dy = mouse.y - p.y;
+        const d2 = dx * dx + dy * dy;
+        if (d2 > dead) {
+          const inv = 1 / Math.sqrt(d2);
+          p.xv += dx * inv * follow * 0.2;
+          p.yv += dy * inv * follow * 0.2;
+        } else {
+          const inv = 1 / Math.max(1, Math.sqrt(d2));
+          p.xv -= dx * inv * follow * 0.15;
+          p.yv -= dy * inv * follow * 0.15;
+        }
+      }
+
+      // drag
+      p.xv *= 0.985;
+      p.yv *= 0.985;
+
+      // clamp speed
+      const speed = Math.hypot(p.xv, p.yv);
+      if (speed > maxSpeed) {
+        const s = maxSpeed / speed;
+        p.xv *= s;
+        p.yv *= s;
+      }
+
+      // soft bounds
+      if (p.x < 0 || p.x > canvas.width) p.xv *= -0.8;
+      if (p.y < 0 || p.y > canvas.height) p.yv *= -0.8;
+
+      p.x += p.xv;
+      p.y += p.yv;
+
+      p.life += dt;
+      p.phase += p.flickerSpeed * (dt / 1000);
+    }
+
+    // swap-pop expired
+    for (let i = particles.length - 1; i >= 0; i--) {
+      if (particles[i].life >= particles[i].lifetime) {
+        const last = particles[particles.length - 1];
+        if (last) particles[i] = last;
+        particles.pop();
+      }
+    }
+  };
+
+  const loop = (time) => {
+    draw();
+    calculate(time);
+    if (particles.length === 0 && mouse.out) {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      rafId = 0;
+      return;
+    }
+    rafId = window.requestAnimationFrame(loop);
+  };
+
+  const start = (time) => {
+    lastTime = time;
+    rafId = window.requestAnimationFrame(loop);
+  };
+
+  if (!mouse.out) {
+    rafId = window.requestAnimationFrame(start);
+  }
 })();
 
 
