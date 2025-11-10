@@ -106,8 +106,9 @@
     });
   };
 
-  const startColor = { r: 0xf3, g: 0xb4, b: 0x8e };
-  const endColor = { r: 0xff, g: 0xf2, b: 0xe6 };
+  // Shifted toward a more yellow palette
+  const startColor = { r: 255, g: 222, b: 120 }; // warm golden
+  const endColor = { r: 255, g: 248, b: 180 };   // pale yellow
 
   const draw = () => {
     if (particles.length === 0) return;
