@@ -252,7 +252,7 @@
     fadeTimer = setTimeout(() => {
       tooltip.style.opacity = '0';
       visible = false;
-    }, 1500);
+    }, 1000);
   });
 })();
 
