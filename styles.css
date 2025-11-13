@@ -82,7 +82,7 @@ body {
   display: flex;
   align-items: center;
   justify-content: flex-end;
-  margin-bottom: 4px;
+  margin-bottom: 35px;
 }
 .top-nav {
   display: inline-flex;
