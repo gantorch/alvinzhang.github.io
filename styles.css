@@ -2,7 +2,7 @@
   --bg: #0b000f;
   --text: #f7f4ff;
   --muted: #cfc7ff;
-  --maxw: 1100px;
+  --maxw: 850px;
 }
 
 :root[data-theme="light"] {
@@ -46,9 +46,9 @@ body {
   display: flex;
   align-items: flex-start;
   justify-content: flex-start;
-  padding-top: clamp(48px, 12vh, 160px);
+  padding-top: 0;
   padding-left: clamp(24px, 10vw, 160px);
-  padding-right: 24px;
+  padding-right: clamp(24px, 10vw, 160px);
   padding-bottom: 24px;
   position: relative;
   z-index: 1;
@@ -57,6 +57,7 @@ body {
 .site-header {
   width: 100%;
   max-width: var(--maxw);
+  margin: 0 auto;
   display: grid;
   place-items: start;
   text-align: left;
@@ -77,13 +78,11 @@ body {
 }
 
 .topbar {
-  position: fixed;
-  top: 16px;
-  right: 24px;
-  z-index: 30;
+  width: 100%;
   display: flex;
   align-items: center;
   justify-content: flex-end;
+  margin-bottom: 4px;
 }
 .top-nav {
   display: inline-flex;
@@ -122,13 +121,13 @@ body {
   border-color: rgba(255, 255, 255, 0.28);
 }
 
-/* Light theme: make theme button border match text (black) */
+/* Light theme: use semi-transparent black border to differ from icon */
 :root[data-theme="light"] .theme-toggle {
-  border-color: var(--text);
+  border-color: rgba(0, 0, 0, 0.18);
 }
 :root[data-theme="light"] .theme-toggle:hover,
 :root[data-theme="light"] .theme-toggle:focus-visible {
-  border-color: var(--text);
+  border-color: rgba(0, 0, 0, 0.28);
 }
 
 .header-row {
