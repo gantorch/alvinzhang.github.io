@@ -46,7 +46,7 @@ body {
   display: flex;
   align-items: flex-start;
   justify-content: flex-start;
-  padding-top: 0;
+  padding-top: clamp(10px, 4vh, 160px);
   padding-left: clamp(24px, 10vw, 160px);
   padding-right: clamp(24px, 10vw, 160px);
   padding-bottom: 24px;
