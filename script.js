@@ -286,3 +286,46 @@
   });
 })();
 
+(() => {
+  const links = Array.from(document.querySelectorAll('.top-nav .nav-link'));
+  if (!links.length) return;
+
+  function setActive(targetHref) {
+    for (const link of links) {
+      const href = link.getAttribute('href') || '';
+      if (href === targetHref) {
+        link.setAttribute('aria-current', 'page');
+      } else {
+        link.removeAttribute('aria-current');
+      }
+    }
+  }
+
+  function currentTarget() {
+    // Prefer matching by page path if any link points to a page
+    const filename = (window.location.pathname.split('/').pop() || 'index.html').toLowerCase();
+    for (const link of links) {
+      const href = (link.getAttribute('href') || '').toLowerCase();
+      if (href && !href.startsWith('#')) {
+        const hrefFile = href.split('/').pop();
+        if (hrefFile === filename) return href;
+      }
+    }
+    // Fallback to hash routing on index
+    return window.location.hash || '#about';
+  }
+
+  setActive(currentTarget());
+
+  window.addEventListener('hashchange', () => {
+    setActive(currentTarget());
+  });
+
+  links.forEach((link) => {
+    link.addEventListener('click', () => {
+      const href = link.getAttribute('href') || '';
+      if (href.startsWith('#')) setActive(href);
+    });
+  });
+})();
+
