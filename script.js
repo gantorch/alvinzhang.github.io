@@ -290,10 +290,50 @@
   const links = Array.from(document.querySelectorAll('.top-nav .nav-link'));
   if (!links.length) return;
 
-  function setActive(targetHref) {
+  function normalizePathname(pathname) {
+    if (!pathname) return '/';
+    let p = pathname.replace(/index\.html$/i, '');
+    if (!p.endsWith('/')) p += '/';
+    if (p !== '/' && p.endsWith('//')) p = p.replace(/\/+$/, '/');
+    return p;
+  }
+
+  function getKeyForLink(link) {
+    const href = link.getAttribute('href') || '';
+    if (href.startsWith('#')) return 'hash:' + href;
+    try {
+      const url = new URL(href, window.location.href);
+      return 'path:' + normalizePathname(url.pathname);
+    } catch {
+      return 'path:' + normalizePathname(href);
+    }
+  }
+
+  function currentKey() {
+    const pathKey = 'path:' + normalizePathname(window.location.pathname);
+    const hasPathMatch = links.some((l) => getKeyForLink(l) === pathKey);
+    if (hasPathMatch) return pathKey;
+    if (window.location.hash) return 'hash:' + window.location.hash;
+    return pathKey;
+  }
+
+  function applyActive() {
+    // If the page markup already specifies an active link, honor it
+    const preset = links.find((l) => l.hasAttribute('aria-current'));
+    if (preset) {
+      for (const link of links) {
+        if (link === preset) {
+          link.setAttribute('aria-current', 'page');
+        } else {
+          link.removeAttribute('aria-current');
+        }
+      }
+      return;
+    }
+
+    const key = currentKey();
     for (const link of links) {
-      const href = link.getAttribute('href') || '';
-      if (href === targetHref) {
+      if (getKeyForLink(link) === key) {
         link.setAttribute('aria-current', 'page');
       } else {
         link.removeAttribute('aria-current');
@@ -301,31 +341,7 @@
     }
   }
 
-  function currentTarget() {
-    // Prefer matching by page path if any link points to a page
-    const filename = (window.location.pathname.split('/').pop() || 'index.html').toLowerCase();
-    for (const link of links) {
-      const href = (link.getAttribute('href') || '').toLowerCase();
-      if (href && !href.startsWith('#')) {
-        const hrefFile = href.split('/').pop();
-        if (hrefFile === filename) return href;
-      }
-    }
-    // Fallback to hash routing on index
-    return window.location.hash || '#about';
-  }
-
-  setActive(currentTarget());
-
-  window.addEventListener('hashchange', () => {
-    setActive(currentTarget());
-  });
-
-  links.forEach((link) => {
-    link.addEventListener('click', () => {
-      const href = link.getAttribute('href') || '';
-      if (href.startsWith('#')) setActive(href);
-    });
-  });
+  applyActive();
+  window.addEventListener('hashchange', applyActive);
 })();
 
