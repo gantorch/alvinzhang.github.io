@@ -5,6 +5,18 @@
   --maxw: 1100px;
 }
 
+:root[data-theme="light"] {
+  --bg: #CCCCCC;
+  --text: #000000;
+  --muted: #000000;
+}
+
+:root[data-theme="dark"] {
+  --bg: #0a0a0a;
+  --text: #ffffff;
+  --muted: #87898d;
+}
+
 /* Basic reset */
 *,
 *::before,
@@ -59,6 +71,66 @@ body {
   text-shadow: 0 0 20px rgba(255, 248, 200, 0.06);
 }
 
+/* Dark theme: soften main title color */
+:root[data-theme="dark"] .site-header h1 {
+  color: #dfdfdf;
+}
+
+.topbar {
+  position: fixed;
+  top: 16px;
+  right: 24px;
+  z-index: 30;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+}
+.top-nav {
+  display: inline-flex;
+  align-items: center;
+  gap: 18px;
+}
+.nav-link {
+  color: var(--muted);
+  text-decoration: none;
+  transition: color 160ms ease-out, transform 160ms ease-out;
+}
+.nav-link:hover,
+.nav-link:focus-visible {
+  color: #ffe27a;
+  transform: translateY(-1px);
+}
+.theme-toggle {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 34px;
+  height: 34px;
+  padding: 0;
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.06);
+  color: var(--muted);
+  cursor: pointer;
+  transition: color 160ms ease-out, transform 160ms ease-out, background 160ms ease-out, border-color 160ms ease-out;
+}
+.theme-toggle:hover,
+.theme-toggle:focus-visible {
+  color: #ffe27a;
+  transform: translateY(-1px);
+  background: rgba(255, 255, 255, 0.10);
+  border-color: rgba(255, 255, 255, 0.28);
+}
+
+/* Light theme: make theme button border match text (black) */
+:root[data-theme="light"] .theme-toggle {
+  border-color: var(--text);
+}
+:root[data-theme="light"] .theme-toggle:hover,
+:root[data-theme="light"] .theme-toggle:focus-visible {
+  border-color: var(--text);
+}
+
 .header-row {
   display: flex;
   align-items: flex-end;
@@ -98,7 +170,7 @@ body {
   margin-top: 16px;
 }
 .social-icon {
-  color: #a9a2c8; 
+  color: var(--muted);
   transition: color 160ms ease-out, transform 160ms ease-out;
   display: inline-flex;
   text-decoration: none;

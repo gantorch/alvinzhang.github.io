@@ -256,3 +256,33 @@
   });
 })();
 
+(() => {
+  const THEME_KEY = 'theme';
+  const themes = ['light', 'dark', 'cyber'];
+  const root = document.documentElement;
+  const toggleBtn = document.getElementById('theme-toggle');
+  if (!toggleBtn) return;
+
+  const metaColorScheme = document.querySelector('meta[name="color-scheme"]');
+
+  function applyTheme(theme) {
+    if (theme === 'cyber' || !theme) {
+      root.removeAttribute('data-theme');
+      if (metaColorScheme) metaColorScheme.setAttribute('content', 'dark');
+    } else {
+      root.setAttribute('data-theme', theme);
+      if (metaColorScheme) metaColorScheme.setAttribute('content', theme === 'light' ? 'light' : 'dark');
+    }
+  }
+
+  let current = localStorage.getItem(THEME_KEY) || 'cyber';
+  applyTheme(current);
+
+  toggleBtn.addEventListener('click', () => {
+    const idx = themes.indexOf(current);
+    current = themes[(idx + 1) % themes.length];
+    localStorage.setItem(THEME_KEY, current);
+    applyTheme(current);
+  });
+})();
+
