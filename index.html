@@ -3,9 +3,8 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <meta name="color-scheme" content="dark" />
+    <meta name="color-scheme" content="light dark" />
     <title>Alvin Zhang</title>
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link rel="stylesheet" href="./styles.css" />
     <link rel="icon" type="image/png" href="/favicon.png" />
   </head>
@@ -13,53 +12,32 @@
     <canvas id="cursor-canvas" aria-hidden="true"></canvas>
 
     <main class="site" role="main">
-      <header class="site-header">
-        <div class="topbar">
-          <nav class="top-nav" aria-label="main">
-            <a class="nav-link" href="/">about</a>
-            <a class="nav-link" href="./thoughts.html">thoughts</a>
-            <button class="theme-toggle" id="theme-toggle" aria-label="toggle theme" title="toggle theme">
-              <svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true" focusable="false">
-                <path fill="currentColor" d="M12,22 C17.5228475,22 22,17.5228475 22,12 C22,6.4771525 17.5228475,2 12,2 C6.4771525,2 2,6.4771525 2,12 C2,17.5228475 6.4771525,22 12,22 Z M12,20.5 L12,3.5 C16.6944204,3.5 20.5,7.30557963 20.5,12 C20.5,16.6944204 16.6944204,20.5 12,20.5 Z"></path>
-              </svg>
-            </button>
-          </nav>
+      <aside class="side">
+        <nav class="side-nav">
+          <a href="/" class="tab" aria-current="page">about</a>
+          <a href="/thoughts.html" class="tab">thoughts</a>
+          <a href="/config.html" class="tab">config</a>
+        </nav>
+      </aside>
+
+      <div class="divider" aria-hidden="true"></div>
+
+      <section class="content">
+        <h1>hi, i'm alvin.</h1>
+        
+        <p>i work for <a href="https://nexa.farm/" target="_blank" rel="noopener">Nexa Labs</a> and previously studied physics + cs at Caltech.</p>
+        
+        <p>email: <a href="mailto:alvinzus01@gmail.com">alvinzus01@gmail.com</a></p>
+        
+        <div class="socials">
+          <a href="https://github.com/gantorch" target="_blank" rel="noopener" class="social-link">GitHub</a>
+          <a href="https://www.linkedin.com/in/zhangalv/" target="_blank" rel="noopener" class="social-link">LinkedIn</a>
+          <a href="https://x.com/zhangalvin_" target="_blank" rel="noopener" class="social-link">X</a>
+          <span class="social-link">sf | pasadena, ca</span>
         </div>
-        <div class="header-row">
-          <h1>hi, i'm alvin.</h1>
-        </div>
-        <p class="site-subtitle">i work for <a href="https://nexa.farm/" target="_blank" rel="noopener">Nexa Labs</a> and previously studied physics + cs at Caltech.</p>
-        <p class="site-subtitle">email: <a href="mailto:alvinzus01@gmail.com" class="copy-email" data-email="alvinzus01@gmail.com">alvinzus01@gmail.com</a></p>
-        <div class="socials" aria-label="social links">
-          <!-- GitHub -->
-          <a class="social-icon" href="https://github.com/gantorch" target="_blank" rel="noopener" aria-label="GitHub">
-            <svg viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-              <path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"></path>
-            </svg>
-          </a>
-          <!-- LinkedIn -->
-          <a class="social-icon" href="https://www.linkedin.com/in/zhangalv/" target="_blank" rel="noopener" aria-label="LinkedIn">
-            <svg viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" aria-hidden="true">
-              <path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z"/>
-              <rect x="2" y="9" width="4" height="12"/>
-              <circle cx="4" cy="4" r="2"/>
-            </svg>
-          </a>
-          <!-- X -->
-          <a class="social-icon x-icon" href="https://x.com/zhangalvin_" target="_blank" rel="noopener" aria-label="X">𝕏</a>
-          <span class="location location-inline">
-            <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-              <path d="M12 21C15.5 17.4 19 14.1764 19 10.2C19 6.22355 15.866 3 12 3C8.13401 3 5 6.22355 5 10.2C5 14.1764 8.5 17.4 12 21Z"/>
-              <path d="M12 13C13.6569 13 15 11.6569 15 10C15 8.34315 13.6569 7 12 7C10.3431 7 9 8.34315 9 10C9 11.6569 10.3431 13 12 13Z"/>
-            </svg>
-            <span>sf | pasadena, ca</span>
-          </span>
-        </div>
-      </header>
+      </section>
     </main>
 
-    <script src="./script.js" defer></script>
+    <script src="./script.js"></script>
   </body>
-  </html>
-
-
+</html>

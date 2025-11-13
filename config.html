@@ -1,0 +1,53 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="color-scheme" content="light dark" />
+    <title>Alvin Zhang - Config</title>
+    <link rel="stylesheet" href="./styles.css" />
+    <link rel="icon" type="image/png" href="/favicon.png" />
+  </head>
+  <body>
+    <canvas id="cursor-canvas" aria-hidden="true"></canvas>
+
+    <main class="site" role="main">
+      <aside class="side">
+        <nav class="side-nav">
+          <a href="/" class="tab">about</a>
+          <a href="/thoughts.html" class="tab">thoughts</a>
+          <a href="/config.html" class="tab" aria-current="page">config</a>
+        </nav>
+      </aside>
+
+      <div class="divider" aria-hidden="true"></div>
+
+      <section class="content">
+        <div class="config-section">
+          <h2>Themes</h2>
+          <div class="theme-options">
+            <div class="theme-option">
+              <input type="radio" id="theme-light" name="theme" value="light" />
+              <label for="theme-light">Light</label>
+            </div>
+            <div class="theme-option">
+              <input type="radio" id="theme-dark" name="theme" value="dark" />
+              <label for="theme-dark">Dark</label>
+            </div>
+            <div class="theme-option">
+              <input type="radio" id="theme-cyber" name="theme" value="cyber" />
+              <label for="theme-cyber">Cyber</label>
+            </div>
+          </div>
+        </div>
+
+        <div class="config-section">
+          <a href="#" class="legacy-button">Return to legacy site</a>
+        </div>
+      </section>
+    </main>
+
+    <script src="./script.js"></script>
+  </body>
+</html>
+

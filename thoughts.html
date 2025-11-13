@@ -3,9 +3,8 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <meta name="color-scheme" content="dark" />
-    <title>Alvin Zhang - thoughts</title>
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <meta name="color-scheme" content="light dark" />
+    <title>Alvin Zhang - Thoughts</title>
     <link rel="stylesheet" href="./styles.css" />
     <link rel="icon" type="image/png" href="/favicon.png" />
   </head>
@@ -13,25 +12,28 @@
     <canvas id="cursor-canvas" aria-hidden="true"></canvas>
 
     <main class="site" role="main">
-      <header class="site-header">
-        <div class="topbar">
-          <nav class="top-nav" aria-label="main">
-            <a class="nav-link" href="/">about</a>
-            <a class="nav-link" href="./thoughts.html" aria-current="page">thoughts</a>
-            <button class="theme-toggle" id="theme-toggle" aria-label="toggle theme" title="toggle theme">
-              <svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true" focusable="false">
-                <path fill="currentColor" d="M12,22 C17.5228475,22 22,17.5228475 22,12 C22,6.4771525 17.5228475,2 12,2 C6.4771525,2 2,6.4771525 2,12 C2,17.5228475 6.4771525,22 12,22 Z M12,20.5 L12,3.5 C16.6944204,3.5 20.5,7.30557963 20.5,12 C20.5,16.6944204 16.6944204,20.5 12,20.5 Z"></path>
-              </svg>
-            </button>
-          </nav>
+      <aside class="side">
+        <nav class="side-nav">
+          <a href="/" class="tab">about</a>
+          <a href="/thoughts.html" class="tab" aria-current="page">thoughts</a>
+          <a href="/config.html" class="tab">config</a>
+        </nav>
+      </aside>
+
+      <div class="divider" aria-hidden="true"></div>
+
+      <section class="content">
+        <p>coming soon …</p>
+        
+        <div class="thoughts-list">
+          <div class="thought-item">
+            <a href="#" class="thought-title">example</a>
+            <span class="thought-date" id="today-date">2025.11.13</span>
+          </div>
         </div>
-        <div class="header-row">
-          <h1>thoughts</h1>
-        </div>
-        <p class="site-subtitle">my experiences, learnings, and random ideas. coming soon...</p>
-      </header>
+      </section>
     </main>
 
-    <script src="./script.js" defer></script>
+    <script src="./script.js"></script>
   </body>
-  </html>
+</html>

@@ -1,12 +1,15 @@
-(() => {
+// ===== FIREFLIES CURSOR EFFECT =====
+let firefliesInstance = null;
+
+function startFireflies() {
   const canvas = document.getElementById('cursor-canvas');
   const ctx = canvas && canvas.getContext ? canvas.getContext('2d') : null;
-  if (!canvas || !ctx) return;
+  if (!canvas || !ctx) return null;
 
   const noCursor = window.matchMedia('(hover: none), (pointer: coarse)').matches;
   if (noCursor) {
     canvas.style.display = 'none';
-    return;
+    return null;
   }
 
   const sizeScale = 1.2;
@@ -75,7 +78,6 @@
   window.addEventListener('mouseout', handleMouseOut, { passive: true });
   document.addEventListener('visibilitychange', handleVisibilityChange);
 
-  /** @type {Array<{x:number,y:number,xv:number,yv:number,s:number,life:number,lifetime:number,phase:number,flickerSpeed:number}>} */
   let particles = [];
   let spawnAccumulator = 0;
   let type = 0;
@@ -183,7 +185,7 @@
       p.phase += p.flickerSpeed * (dt / 1000);
     }
 
-      for (let i = particles.length - 1; i >= 0; i--) {
+    for (let i = particles.length - 1; i >= 0; i--) {
       if (particles[i].life >= particles[i].lifetime) {
         const last = particles[particles.length - 1];
         if (last) particles[i] = last;
@@ -211,137 +213,153 @@
   if (!mouse.out) {
     rafId = window.requestAnimationFrame(start);
   }
-})();
 
-(() => {
-  const emailEl = document.querySelector('.copy-email');
-  if (!emailEl) return;
-  const email = (emailEl.getAttribute('data-email') || emailEl.textContent || '').trim();
+  // Return cleanup function
+  return {
+    stop: () => {
+      window.removeEventListener('resize', onResize);
+      window.removeEventListener('mousemove', handleMouseMove);
+      window.removeEventListener('mouseout', handleMouseOut);
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
+      if (rafId) {
+        window.cancelAnimationFrame(rafId);
+        rafId = 0;
+      }
+      if (resizeRafId) {
+        window.cancelAnimationFrame(resizeRafId);
+        resizeRafId = 0;
+      }
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      particles = [];
+    }
+  };
+}
 
-  const tooltip = document.createElement('div');
-  tooltip.className = 'copy-tooltip';
-  tooltip.textContent = 'copied';
-  document.body.appendChild(tooltip);
+function enableFireflies() {
+  if (!firefliesInstance) {
+    firefliesInstance = startFireflies();
+  }
+}
 
-  let mouseX = 0;
-  let mouseY = 0;
-  let visible = false;
-  let fadeTimer = 0;
+function disableFireflies() {
+  if (firefliesInstance) {
+    firefliesInstance.stop();
+    firefliesInstance = null;
+  }
+}
 
-  function positionTooltip() {
-    if (!visible) return;
-    tooltip.style.transform = `translate(${mouseX + 14}px, ${mouseY + 18}px)`;
+// ===== THEME MANAGEMENT =====
+const THEME_KEY = 'theme';
+const themes = ['light', 'dark', 'cyber'];
+const root = document.documentElement;
+const metaColorScheme = document.querySelector('meta[name="color-scheme"]');
+
+function applyTheme(theme) {
+  // Normalize theme
+  if (!themes.includes(theme)) {
+    theme = 'light';
   }
 
-  window.addEventListener('mousemove', (e) => {
-    mouseX = e.clientX;
-    mouseY = e.clientY;
-    positionTooltip();
-  }, { passive: true });
+  // Apply data-theme attribute
+  if (theme === 'light') {
+    root.removeAttribute('data-theme');
+  } else {
+    root.setAttribute('data-theme', theme);
+  }
 
-  emailEl.addEventListener('click', async (e) => {
-    e.preventDefault();
-    try {
-      await navigator.clipboard.writeText(email);
-    } catch {
-    }
-    visible = true;
-    positionTooltip();
-    tooltip.style.opacity = '1';
-    clearTimeout(fadeTimer);
-    fadeTimer = setTimeout(() => {
-      tooltip.style.opacity = '0';
-      visible = false;
-    }, 1000);
-  });
-})();
-
-(() => {
-  const THEME_KEY = 'theme';
-  const themes = ['light', 'dark', 'cyber'];
-  const root = document.documentElement;
-  const toggleBtn = document.getElementById('theme-toggle');
-  if (!toggleBtn) return;
-
-  const metaColorScheme = document.querySelector('meta[name="color-scheme"]');
-
-  function applyTheme(theme) {
-    if (theme === 'cyber' || !theme) {
-      root.removeAttribute('data-theme');
-      if (metaColorScheme) metaColorScheme.setAttribute('content', 'dark');
+  // Update meta color-scheme
+  if (metaColorScheme) {
+    if (theme === 'light') {
+      metaColorScheme.setAttribute('content', 'light');
     } else {
-      root.setAttribute('data-theme', theme);
-      if (metaColorScheme) metaColorScheme.setAttribute('content', theme === 'light' ? 'light' : 'dark');
+      metaColorScheme.setAttribute('content', 'dark');
     }
   }
 
-  let current = localStorage.getItem(THEME_KEY) || 'cyber';
-  applyTheme(current);
+  // Enable/disable cursor effect based on theme
+  if (theme === 'dark' || theme === 'cyber') {
+    enableFireflies();
+  } else {
+    disableFireflies();
+  }
 
-  toggleBtn.addEventListener('click', () => {
-    const idx = themes.indexOf(current);
-    current = themes[(idx + 1) % themes.length];
-    localStorage.setItem(THEME_KEY, current);
-    applyTheme(current);
+  // Update radio buttons if on config page
+  const radioBtn = document.getElementById(`theme-${theme}`);
+  if (radioBtn) {
+    radioBtn.checked = true;
+  }
+}
+
+// Initialize theme on page load
+let currentTheme = localStorage.getItem(THEME_KEY) || 'light';
+applyTheme(currentTheme);
+
+// Set up theme change listeners on config page
+document.addEventListener('DOMContentLoaded', () => {
+  const themeRadios = document.querySelectorAll('input[name="theme"]');
+  themeRadios.forEach(radio => {
+    radio.addEventListener('change', (e) => {
+      const newTheme = e.target.value;
+      currentTheme = newTheme;
+      localStorage.setItem(THEME_KEY, newTheme);
+      applyTheme(newTheme);
+    });
   });
-})();
 
-(() => {
-  const links = Array.from(document.querySelectorAll('.top-nav .nav-link'));
-  if (!links.length) return;
+  // Set initial radio state
+  applyTheme(currentTheme);
+});
 
-  function normalizePathname(pathname) {
-    if (!pathname) return '/';
-    let p = pathname.replace(/index\.html$/i, '');
-    if (!p.endsWith('/')) p += '/';
-    if (p !== '/' && p.endsWith('//')) p = p.replace(/\/+$/, '/');
-    return p;
-  }
-
-  function getKeyForLink(link) {
-    const href = link.getAttribute('href') || '';
-    if (href.startsWith('#')) return 'hash:' + href;
-    try {
-      const url = new URL(href, window.location.href);
-      return 'path:' + normalizePathname(url.pathname);
-    } catch {
-      return 'path:' + normalizePathname(href);
-    }
-  }
-
-  function currentKey() {
-    const pathKey = 'path:' + normalizePathname(window.location.pathname);
-    const hasPathMatch = links.some((l) => getKeyForLink(l) === pathKey);
-    if (hasPathMatch) return pathKey;
-    if (window.location.hash) return 'hash:' + window.location.hash;
-    return pathKey;
-  }
-
-  function applyActive() {
-    // If the page markup already specifies an active link, honor it
-    const preset = links.find((l) => l.hasAttribute('aria-current'));
-    if (preset) {
-      for (const link of links) {
-        if (link === preset) {
-          link.setAttribute('aria-current', 'page');
-        } else {
-          link.removeAttribute('aria-current');
+// ===== PAGE TRANSITIONS =====
+function installTransitions() {
+  const root = document.documentElement;
+  const sideNavLinks = document.querySelectorAll('.side-nav a');
+  
+  sideNavLinks.forEach(link => {
+    link.addEventListener('click', (e) => {
+      // Only intercept same-origin links
+      try {
+        const url = new URL(link.href);
+        if (url.origin !== location.origin) return;
+        
+        // Don't transition if already on this page
+        if (url.pathname === location.pathname) {
+          e.preventDefault();
+          return;
         }
+        
+        e.preventDefault();
+        root.classList.add('page-exit', 'page-exit-active');
+        setTimeout(() => {
+          location.href = link.href;
+        }, 200);
+      } catch (err) {
+        // Invalid URL, let default behavior happen
       }
-      return;
-    }
+    });
+  });
 
-    const key = currentKey();
-    for (const link of links) {
-      if (getKeyForLink(link) === key) {
-        link.setAttribute('aria-current', 'page');
-      } else {
-        link.removeAttribute('aria-current');
-      }
-    }
+  // On page load, fade in
+  root.classList.add('page-enter');
+  requestAnimationFrame(() => {
+    root.classList.add('page-enter-active');
+  });
+  setTimeout(() => {
+    root.classList.remove('page-enter', 'page-enter-active');
+  }, 300);
+}
+
+// Install transitions
+installTransitions();
+
+// ===== UPDATE TODAY'S DATE =====
+document.addEventListener('DOMContentLoaded', () => {
+  const dateEl = document.getElementById('today-date');
+  if (dateEl) {
+    const today = new Date();
+    const year = today.getFullYear();
+    const month = String(today.getMonth() + 1).padStart(2, '0');
+    const day = String(today.getDate()).padStart(2, '0');
+    dateEl.textContent = `${year}.${month}.${day}`;
   }
-
-  applyActive();
-  window.addEventListener('hashchange', applyActive);
-})();
-
+});
