@@ -2,7 +2,7 @@
   --bg: #0b000f;
   --text: #f7f4ff;
   --muted: #cfc7ff;
-  --maxw: 850px;
+  --maxw: 800px;
 }
 
 :root[data-theme="light"] {
