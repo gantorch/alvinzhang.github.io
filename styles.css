@@ -120,8 +120,8 @@ body {
 /* ===== LAYOUT ===== */
 .site {
   display: grid;
-  grid-template-columns: 160px 1px minmax(0, 1fr);
-  gap: 48px;
+  grid-template-columns: 64px 1px minmax(0, 1fr);
+  gap: 24px;
   align-items: start;
   min-height: 100vh;
   padding: 64px 80px;
@@ -132,7 +132,7 @@ body {
 @media (max-width: 1024px) {
   .site {
     padding: 48px 48px;
-    gap: 36px;
+    gap: 20px;
   }
 }
 
