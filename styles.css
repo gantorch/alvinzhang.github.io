@@ -215,7 +215,6 @@ body {
 }
 
 .content h1 {
-  margin: 0 0 24px 0;
   font-weight: 400;
   font-size: 2rem;
   line-height: 1.2;
@@ -223,7 +222,6 @@ body {
 }
 
 .content p {
-  margin: 0 0 16px 0;
   line-height: 1.65;
 }
 
@@ -242,7 +240,6 @@ body {
 .socials {
   display: flex;
   gap: 16px;
-  margin-top: 24px;
   flex-wrap: wrap;
 }
 
@@ -262,7 +259,6 @@ body {
 
 /* ===== THOUGHTS PAGE ===== */
 .thoughts-list {
-  margin-top: 32px;
   display: flex;
   flex-direction: column;
   gap: 12px;
@@ -294,11 +290,9 @@ body {
 
 /* ===== CONFIG PAGE ===== */
 .config-section {
-  margin-bottom: 48px;
 }
 
 .config-section h2 {
-  margin: 0 0 16px 0;
   font-weight: 500;
   font-size: 1.25rem;
 }
