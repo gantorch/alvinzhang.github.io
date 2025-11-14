@@ -156,8 +156,6 @@ body {
 
 /* ===== SIDEBAR ===== */
 .side {
-  position: sticky;
-  top: 48px;
   align-self: start;
 }
 
