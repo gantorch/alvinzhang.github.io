@@ -165,6 +165,7 @@ body {
   display: flex;
   flex-direction: column;
   gap: 12px;
+  align-items: stretch;
 }
 
 .tab {
@@ -174,6 +175,9 @@ body {
   text-decoration: none;
   transition: color 0.18s ease;
   font-size: 1rem;
+  display: block;
+  text-align: right;
+  padding-right: 20px;
 }
 
 .tab:hover {
@@ -192,6 +196,12 @@ body {
   .side-nav {
     flex-direction: row;
     gap: 24px;
+    align-items: center;
+  }
+
+  .tab {
+    text-align: left;
+    padding-right: 0;
   }
 }
 
