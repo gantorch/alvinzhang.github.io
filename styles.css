@@ -250,6 +250,10 @@ body {
   flex-wrap: wrap;
 }
 
+.social-label {
+  color: var(--text);
+}
+
 .social-link {
   color: var(--text);
   text-decoration: none;
