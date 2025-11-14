@@ -237,12 +237,6 @@ body {
 }
 
 /* ===== SOCIAL LINKS ===== */
-.socials {
-  display: flex;
-  gap: 16px;
-  flex-wrap: wrap;
-}
-
 .social-label {
   color: var(--text);
 }
